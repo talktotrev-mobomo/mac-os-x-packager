@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ `pkgutil --pkgs | grep 'Xcode' | wc -l` -eq 0 ]
+then
+  yes | xcode-select --install
+fi
+
+if [ `pkgutil --pkgs | grep virtualbox | wc -l` -eq 0 ]
+then
+  curl -s -O https://download.virtualbox.org/virtualbox/6.0.14/VirtualBox-6.0.14-133895-OSX.dmg
+  curl -s -O https://download.virtualbox.org/virtualbox/6.0.14/Oracle_VM_VirtualBox_Extension_Pack-6.0.14.vbox-extpack
+  MOUNTDIR=$(echo `hdiutil mount VirtualBox-6.0.14-133895-OSX.dmg | tail -1 \
+  | awk '{$1=$2=""; print $0}'` | xargs -0 echo) \
+  && sudo installer -pkg "${MOUNTDIR}/"*.pkg -target /
+  yes | sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-6.0.14.vbox-extpack
+  hdiutil eject $MOUNTDIR
+fi
+
+if [ `pkgutil --pkgs | grep vagrant | wc -l` -eq 0 ]
+then
+    curl -s -O https://releases.hashicorp.com/vagrant/2.2.6/vagrant_2.2.6_x86_64.dmg
+    MOUNTDIR=$(echo `hdiutil mount vagrant_2.2.6_x86_64.dmg | tail -1 \
+    | awk '{$1=$2=""; print $0}'` | xargs -0 echo) \
+    && sudo installer -pkg "${MOUNTDIR}/"*.pkg -target /
+    hdiutil eject $MOUNTDIR
+fi
+
+exit 0;
